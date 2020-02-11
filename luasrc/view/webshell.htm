@@ -1,0 +1,126 @@
+<%+header%>
+
+<script type="text/javascript">//<![CDATA[
+
+  String.prototype.startsWith = function (str){
+    return this.indexOf(str) == 0;
+  };
+
+	function gotopath(obj)
+	{
+		document.getElementById("cmd").value ="cd " + obj.innerHTML;
+		update_status();
+
+	}
+	var iwxhr = new XHR();
+	function update_status(e) {
+		if(e!=null && e.keyCode!=13) return false;
+		/*var cmd = document.getElementById("cmd").value;
+		if(cmd.startsWith("cd"))
+		{
+			newpath = cmd.replace("cd","").replace(" ","");
+			if(newpath.startsWith("/")){
+				document.getElementById("currentpath").value = newpath;
+			}else{
+				document.getElementById("currentpath").value += newpath;
+			}
+			cmd="";
+		}*/
+		
+	obj = document.getElementById("screen");
+	cmdstr=(document.getElementById("cmd").value).replace(/\s+/g,"")
+	if (cmdstr == "cls" || cmdstr == "clear")
+	{
+	   obj = document.getElementById("screen");
+	   obj.value = "";
+	   document.getElementById("cmd").value = "";
+	   return false;	
+	}
+
+		iwxhr.get('<%=luci.dispatcher.build_url("admin", "services", "cmd_run")%>', {cmd: document.getElementById("cmd").value,path:document.getElementById("currentpath").value  },
+			function(x, ifc)
+			{
+				obj = document.getElementById("screen");
+				obj.value+=ifc[0];
+				document.getElementById("currentpath").value=ifc[1];;
+				document.getElementById("list").innerHTML="<ul><li onclick='gotopath(this)'>..</li><li onclick='gotopath(this)'>"+ifc[2].replace(/,/g,"</li><li onclick='gotopath(this)'>")+"</li></ul>";
+				obj.scrollTop = obj.scrollHeight;
+				document.getElementById("cmd").focus();
+			}
+		)
+	
+
+
+	if ((document.getElementById("cmd").value).replace(/\s+/g,"") != "")
+	  {
+		obj.value+="\r\n# "+document.getElementById("cmd").value+"\r\n";
+		document.getElementById("cmd").value = "";
+		return false;	
+	  }
+	};
+//]]></script>
+
+<style>
+.cmd_line{
+	background-color:yellow;
+
+}
+#list ul li
+{
+	font-weight:bold;
+	margin: 2px;
+	padding: 0px;
+	list-style: none;
+	word-break: keep-all;
+}
+#list ul li:hover
+{
+	color:blue;
+	background:#A2FFD0;
+	cursor:pointer;
+}
+#list ul{
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+#list li{
+	border: none;
+	width: 100px;
+	text-align: left;
+	margin-top: 10px;
+	margin-bottom: 10px;
+	flex:auto;
+}
+#screen{
+	SCROLLBAR-FACE-COLOR: #333333;
+	SCROLLBAR-HIGHLIGHT-COLOR: #333333;
+	SCROLLBAR-SHADOW-COLOR: #000000;
+	SCROLLBAR-3DLIGHT-COLOR: #000000;
+	SCROLLBAR-ARROW-COLOR: #cccccc;
+	SCROLLBAR-TRACK-COLOR: #cccccc;
+	SCROLLBAR-DARKSHADOW-COLOR: #000000;
+	SCROLLBAR-BASE-COLOR: #cccccc;
+	width:100%;height:300px;overflow-y:auto;font-size:14px;margin:0px;border:0px;background:black;color:#CCCCCC;overflow-x:hidden;
+	font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+}
+#divfilelist{ border-left:3px solid #008040;border-top: 1px solid #8080C0}
+</style>
+<div class="cbi-map" id="cbi-system"><h2><a id="content" name="content"><%=translate("A Web Shell Simple")%></a></h2><div class="cbi-map-descr"><%=translate("Do not execute commands such as <b><font color=\"red\">ping, top</font></b>, etc. which do not return values immediately!")%> </div>
+
+<textarea id="screen" style="width:100%;height:300px;overflow:auto;font-size:14px;"></textarea>
+<br/><br/>
+<%=translate("Command :")%>
+<input type="text" id="cmd" onkeypress="update_status(event)"/>
+<br/>
+<%=translate("Press the Enter key to execute...")%>
+<br/>
+<br/>
+<%=translate("Working Path :")%>
+<input type="text" id="currentpath" style="width:400px;" value="/"/>
+<div><strong><%=translate("Files List :")%></strong></div>
+<div id="divfilelist"><span id="list" /></div>
+<script>
+   update_status(null);
+</script>
+<%+footer%>
