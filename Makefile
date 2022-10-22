@@ -8,6 +8,7 @@ include $(TOPDIR)/rules.mk
 
 LUCI_TITLE:=LuCI page for a Web Shell Simple
 #LUCI_DEPENDS:=+luci-compat
+PKG_NAME:=luci-app-webshellsimple
 PKG_VERSION:=1.0.2
 PKG_RELEASE:=1
 
